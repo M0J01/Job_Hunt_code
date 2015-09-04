@@ -115,7 +115,6 @@ def get_name(indexz):
 
 #Pass in: Keyword list , and an index where index[i][0]=sitelink, [i][1]=htmlinfo, [i][2]=job_name
 #Returns: an index with index[i][3]=Rating Count      	## Rating Count based on Keyword matching
-""" Need to work on the DQ logic. It is becoming too harsh and returns 0 qualified results for first 30 entries on indeed.
 def rating_count(indexz,keywordz,dQz):
 	
 	dQindex = []
@@ -161,34 +160,7 @@ def rating_count(indexz,keywordz,dQz):
 		indexz[i].append(count)
 		i+=1
 	return indexz, dQindex
-"""
-	
-def rating_count(indexz,keywordz):
-	
-	i = 0 
-	while i < len(indexz):
 
-		dQ_count = 0
-		dQ_limit = 0	
-		ranks = 0
-		count = 0
-		
-		while ranks < len(keywordz):
-		
-			word = 1
-			multiplier = keywordz[ranks][0]		#print multiplier, '<< This is the multiplier \n'	
-			while word < len(keywordz[ranks]):
-			
-				match = re.findall(keywordz[ranks][word],indexz[i][1])		#Indexz[i][1] corresponds to the i'th index entry, and the html text of that entry. #print len(match), ' :: ', multiplier
-				count += int(len(match))*int(multiplier)
-				word+=1
-			
-			ranks+=1	
-				
-		indexz[i].append(count)
-		i+=1
-	return indexz
-	
 #Pass in: an Unsorted Index
 #Returns: an Sorted Index
 def sort_index(indy):
@@ -220,20 +192,21 @@ def sort_index(indy):
 	return tempy
 	
 #Define your base page here
-#url_base = "http://www.indeed.com/jobs?q=Robotics+Engineer&l=NYC%2C+NY"		#NewYork Base
-#url_base = "http://www.indeed.com/jobs?q=Robotics+Engineer&l=Boston%2C+MA"		#Boston Base
-url_base = "http://www.indeed.com/jobs?q=Robotics+Engineer&l=California"		#California Base
+url_base = "http://www.indeed.com/jobs?q=Robotics&l=NYC%2C+NY"		#NewYork Base
+#url_base ="http://www.indeed.com/jobs?q=Robotics&l=Boston%2C+MA"	#Boston Base
+#url_base = "http://www.indeed.com/jobs?q=Robotics&l=California"	#California Base
 #url_base = "http://www.indeed.com/jobs?q=Lab&l=Richmond%2C+VA"		#***Ethans Base
 
-#Define patterns to look for
+#Define your patterns to look for
 link_style = 'href="(.+?)" target="_blank"'
 name_style = '<title[^.]*>(.+?)</title>'
 
-#Define your root-page-to-addend here :: Need to add support for Monster.com, AfterCollege.com, indeed.com and a few other major search sites.
+#Define your root-page-to-addend here
 root = "http://indeed.com"
 
 #Define a PagetoWrite to here
-write_text_page = open("California_Roboitcs_Positions.txt","w")
+write_text_page = open("00_NY_Robotics.txt","w")
+write_dQ_page = open("00_NY_Robotics_DQ.txt","w")
 
 #rank1 = [1,'technician', 'Technician', 'Lab', 'lab', 'labs', 'Labs', 'Laboratory', 'laboratory', 'science', 'Science', 'environmental', 'Environmental', 'GC', 'wastewater', 'water treatment', 'Wastewater', 'Water treatment', 'Water quality', 'water quality', 'scientist', 'Scientist', 'QA', 'QC'""]
 
@@ -255,16 +228,14 @@ keyword_list.append(rank4)
 #Make everything Lower Case --Look in to multithreading --getting rid of <Styles and such can increase speed
 #Intro to NLP
 #Computational Linguistics MAsters Degree David
-
-"""
 dQ_list = []
 dQ1 = [3, 10000, ['Nurse', 'nurse', 'NURSE']]
 dQ2 = [10, 100, ['Senior', 'SENIOR', 'senior']]
 dQ3 = [10, 100, ['health','Health','HEALTH']]
 dQ4 = [4, 1000, ['oncology','Oncology','ONCOLOGY', 'physician', 'Physician', 'PHYSICIAN']]
-dQ5 = [1, 1000, ['5+', '6+', '7+', '8+', '9+', '10+', '5 years', '6 years', '7 years', '8 years', '9 years', '10 years']]
+dQ5 = [1, 1000, ['5+', '6+', '7+', '8+', '9+', '10+', '5 years']]
 dQ6 = [1, 1000, ['assist in surgery']]
-dQ7 = [1, 10000, ['Chuck E. Cheese']]	#NO.
+dQ7 = [1, 10000, ['Chuck E. Cheese']]	
 dQ8 = [1, 250, ['4+']]
 dQ_list.append(dQ1)
 dQ_list.append(dQ2)
@@ -273,37 +244,28 @@ dQ_list.append(dQ4)
 dQ_list.append(dQ5)
 dQ_list.append(dQ6)
 dQ_list.append(dQ7)
-"""
+
 
 
 #Define your index here
 index = []
 
-#Flag bit so no do while
+
 first = 0
-
-#Misnomer, actually meant to be the string to add to the end of the URL, not where the search will stop.
 url_end = 0
-
-while url_end <= 300:
+while url_end <= 30:
 	temp_index = []
-	
-	
-	#the first page of ineed.com results are structured differently than the rest.
 	if first == 1:
 		url_start = url_base+'&start=' + str(url_end)
 	else:
 		first = 1
 		url_start = url_base
-	
-
-	
 	urlfile = get_webpage(url_start)
 	links = get_target_data(link_style,urlfile)
 	full_links = make_full_link(links,root)
 	temp_index = fill_index(temp_index, full_links)
 	temp_index = get_name(temp_index)
-	temp_index = rating_count(temp_index,keyword_list)
+	temp_index, dQQ = rating_count(temp_index,keyword_list,dQ_list)
 
 	for a in temp_index:
 		index.append(a)		
@@ -320,12 +282,11 @@ print index[1][3]
 for a in index:
 	write_text_page.write(str(a[3]) + ' : ' + a[2] + ' : ' + a[0])		##a[3] is type int, so needs to be forced str()
 	write_text_page.write('\n')
-"""
 for b in dQQ:
 	write_dQ_page.write(str(b[3]) + ' : ' + b[2] + ' : ' + b[0])
 	write_dQ_page.write('\n')
 print len(dQQ)	 
-""" 
+	 
 	 # for link in links:
 	# print link
 	# url = "http://www.indeed.com" + symbolslist[i] 
