@@ -1,6 +1,13 @@
 # Job_Search_Hunt
 First itteration of Job Hunting Software
 
+00_Ca_Robotics is the current working version. Boston and New York versions are depricated.
+
+Running 00_Ca_Robotics will generate a text file with ranked job results and link to job posting.
+
+Job ranking is currently done by a weighted keyword list. Disqualifying words are currently commented out due to over correction and ranking issues.
+
+
 Things it would be cool to add::
 
 *Increased Functionality*
