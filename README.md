@@ -19,7 +19,7 @@ Things it would be cool to add::
 *Core Functionality*
 
 -Better sorting algorythms
-  +better Disqualifaction Recognition (Cuz I aint no nurse, but I will work with machines to help them!)
-  +better Ranking system (Cuz sometimes simply worded great jobs are given a low rank)
+  +better Disqualifaction Recognition
+  +better Ranking system (Previously simply worded great jobs were given a low rank)
 
 
